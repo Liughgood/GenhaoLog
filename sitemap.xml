@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://liughgood.github.io/GenhaoLog/</loc>
+  <lastmod>2024-09-30T07:10:18+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://liughgood.github.io/GenhaoLog/about/</loc>
+  <lastmod>2024-09-30T07:10:18+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://liughgood.github.io/GenhaoLog/welcome/2024/09/30/welcome-to-Genhao-blog.html</loc>
+  <lastmod>2024-09-30T07:10:18+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://liughgood.github.io/GenhaoLog/jekyll/update/2024/09/30/welcome-to-jekyll.html</loc>
+  <lastmod>2024-09-30T07:10:18+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+
+
+</urlset>
