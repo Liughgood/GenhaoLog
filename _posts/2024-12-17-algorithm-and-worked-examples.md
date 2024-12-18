@@ -1,15 +1,9 @@
 ---
 layout: post
-title:  "火星上的时间--算法和用例"
+title:  "火星的时间--算法和用例"
 date:   2024-12-17 21:52:00 +0800
 categories: NASA Mars Time
 ---
-
-<style>
-.indented {
-    text-indent: 2em; /* 设置缩进 */
-}
-</style>
 
 **本篇文章翻译自NASA的 [Algorithm and Worked Examples][origin-link]  
 更新于 2023-12-10**
