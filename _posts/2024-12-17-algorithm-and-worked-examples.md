@@ -16,7 +16,7 @@ categories: NASA Mars Time
 
 Mars24 为确定火星上某个位置的时间而进行的计算方法主要基于 Allison 和 McEwen 的工作(2000，此后称为 AM2000)。我们还参考了 Allison 的工作(1997，此后称为 A1997)，其中 AM2000 是一次彻底的更新。然而，AM2000 的已发布版本中出现了一些印刷错误，并且由于有新数据可用，自该论文发表以来，一些计算已被修订。Allison 和 Ferrier 在一篇未发表的论文中描述了各种修订，以及 Allison 后来的一些未发表的计算。
 
-因此，我们在此提供 Mars24 所采用等式的分步文档，供希望实现自己的 Mars 计时应用程序（与应用程序的结果相匹配）的用户使用。在本演示的最后，我们还提供了两个用于验证中间结果的工作示例。
+因此，我们在此提供 Mars24 所采用等式的分步文档，供希望实现自己的 Mars 计时应用程序（与应用程序的结果相匹配）的用户使用。在本演示的最后，我们还提供了两个用于验证中间结果的可用示例。
 
 ## 一、等式式
 ### A. 确定自 J2000 纪元以来的天数
@@ -95,10 +95,130 @@ PBS = Σ<sub>(i=1,7)</sub> A<sub>i</sub> cos [ (0.985626° Δ*t*<sub>J2000</sub>
 
 L<sub>s</sub> = α<sub>FMS</sub> + (ν - M)
 
-... 未完待续
+### C. 确定火星时间
+#### C-1. 确定时间等式（AM2000，等式 20）
+EOT = 2.861° sin 2L<sub>s</sub> - 0.071° sin 4L<sub>s</sub> + 0.002° sin 6L<sub>s</sub> - (ν - *M*)
 
-[origin-link]: https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
+上述 EOT 的结果以度为单位。乘以 (24 小时 / 360°) = (1 小时 / 15°) 可得出以小时为单位的结果。
+
+#### C-2. 确定在火星的本初子午线的平均太阳时（即艾里平均时间）。（AM2000，等式22，修改）
+下面就是在火星的本初子午线的平均太阳时
+
+MST = mod<sub>24</sub> { 24 h × ( [(JD<sub>TT</sub> - 2451549.5) / 1.0274912517] + 44796.0 - 0.0009626 ) }
+
+函数 mod<sub>x</sub> 表示将函数参数（周期性值）重新设置为 0 和 x 之间的值。在这个等式中，我们用 mod<sub>24</sub> 来表示如果一个数在 0 - 24 的范围外，那么应重新设置该值到范围内，例如 mod<sub>24</sub>（30）= 6。
+
+#### C-3. 确定本地平均太阳时
+
+对于给定的行星地理经度 Λ（以西度为单位），当地平均太阳时间可以通过从本初子午线的平均太阳时间进行偏移来轻松确定。
+
+LMST = mod<sub>24</sub> { MST - Λ (24 h / 360°) } = mod<sub>24</sub> { MST - Λ (1 h / 15°) }
+
+#### C-4. 确定本地真太阳时 （AM2000，等式 23）
+LTST = LMST + EOT (24 h / 360°) = LMST + EOT (1 h / 15°)
+
+#### C-5. 确定太阳直射点经度
+Λ<sub>s</sub> = MST (360° / 24 h) + EOT + 180° = MST (15° / h) + EOT + 180°
+
+### D. 附加的计算
+#### D-1. 确定太阳偏角（行星地理）（A1997，等式 5）
+
+δ<sub>s</sub> = arcsin (0.42565 sin L<sub>s</sub>) + 0.25° sin L<sub>s</sub>
+
+#### D-2. 确定日心距离 （AM2000，等式 25, 更正）
+*R*<sub>M</sub> = 1.52367934 × (1.00436 - 0.09309 cos *M* - 0.004336 cos 2*M* - 0.00031 cos 3*M* - 0.00003 cos 4*M*)
+
+#### D-3. 确定日心经度 （AM2000，等式 25 26）
+l<sub>M</sub> = L<sub>s</sub> + 85.061° - 0.015° sin (71° + 2L<sub>s</sub>) - 5.5°×10<sup>-6</sup> Δ*t*<sub>J2000</sub>
+
+#### D-4. 确定日心纬度
+
+b<sub>M</sub> = -(1.8497° - 2.23°×10<sup>-5</sup> Δ*t*<sub>J2000</sub>) sin (L<sub>s</sub> - 144.50° + 2.57°×10<sup>-6</sup> Δ*t*<sub>J2000</sub>)
+
+#### D-5. 确定本地太阳高度
+
+对于火星表面的任何给定点，我们想要确定太阳的角度。天顶角是：
+
+*Z* = arccos (sin δ<sub>s</sub> sin φ + cos δ<sub>s</sub> cos φ cos H)
+
+其中 φ 是行星地理纬度，Λ 是行星地理经度，H 是时角，Λ - Λ<sub>s</sub>。
+
+太阳高度角简单地为 90° - *Z*。
+
+#### D-6. 确定当地太阳方位角
+
+从火星表面上的一个点可以看出，太阳位置的第二个要素是其方位角，即相对于正北方向的指南针角度。
+
+*A* = arctan (sin *H* / (cos φ tan δ<sub>s</sub> - sin φ cos *H*))
+
+（注意：在你的计算机代码或电子表格中应用此方程时，请使用 *atan2* 函数，以确保获得正确的象限）
+
+## 二、 可用的示例
+### 接近重合的地球和火星时间
+一个容易记住的用于校准时钟的基准，是一个日期和时间。此时地球和火星的“标准时间”几乎相同。当地球时间为 2000 年 1 月 6 日00:00:00（UTC）时，距离火星本初子午线的平均午夜仅有 21 个火星秒。我们来进行计算，看看是否得出 MST = 23:59:39。对于经度和纬度，我们指定为 0°W 0°N。
+
+|等式|参数|值|
+|---|---|---|
+|A-1|*millis*|947116800000 ms|
+|A-2|JD<sub>UT</sub>|2451549.5|
+|A-3|T|—|
+|A-4|TT - UTC|64.184 s|
+|A-5|JD<sub>TT</sub>|2451549.50074|
+|A-6|Δ*t*<sub>J2000</sub>|4.50074|
+|B-1|*M*|21.74558°
+|B-2|α<sub>FMS</sub>|272.74566°|
+|B-3|PBS|0.00142°|
+|B-4|ν - *M*|4.44193°|
+|B-5|L<sub>s</sub>|277.18758°|
+|C-1|EOT|-5.18774° = -0.34585 h = -00:20:45|
+|C-2|MST|mod<sub>24</sub> (1075103.99425 h) = 23.99425 h = 23:59:39|
+|C-3|LMST|23.99425 h = 23:59:39|
+|C-4|LTST|23.64840 h = 23:38:54|
+|C-5|Λ<sub>s</sub>|174.72600°
+|D-1|δ<sub>s</sub>|-25.22825°|
+|D-2|*R*<sub>M</sub>|1.39358 AU|
+|D-3|*l*<sub>M</sub>|2.26352°|
+|D-4|*b*<sub>M</sub>|-1.35957°|
+|D-5|*Z*|154.26182°|
+|D-6|*A*|191.03905°|
+
+### MER-A *勇气号*着陆
+火星探测车A号（勇气号）于 2004 年 1 月 4 日着陆（UTC；在美国时区为 1 月 3 日晚上）。针对计划着陆目标，预计着陆前的当地真实午夜是在 1 月 3 日 13:46:31 UTC。我们指定经度和纬度为 184.702°W 和 -14.640°N。我们预计在该位置的火星当地时间为 LTST = 00:00:00，太阳方位角为 180°。
+
+|等式|参数|值|
+|---|---|---|
+|A-1|*millis*|1073137591000 ms|
+|A-2|JD<sub>UT</sub>|2453008.07397|
+|A-3|T|—|
+|A-4|TT - UTC|64.184 s|
+|A-5|JD<sub>TT</sub>|2453008.07471|
+|A-6|Δ*t*<sub>J2000</sub>|1463.07471|
+|B-1|*M*|786.06858° → 66.06858°|
+|B-2|α<sub>FMS</sub>|1037.09457° → 317.09457°|
+|B-3|PBS|0.01614°|
+|B-4|ν - *M*|10.22959°|
+|B-5|L<sub>s</sub>|1047.32416° → 327.32416°|
+|C-1|EOT|-12.77553° = -0.85170 h = -00:51:06|
+|C-2|MST|mod<sub>24</sub> (1109173.16537 h) = 13.16537 h = 13:09:55|
+|C-3|LMST|0.85190 h = 00:51:07|
+|C-4|LTST|0.00025 h = 00:00:00|
+|C-5|Λ<sub>s</sub>|4.70500°|
+|D-1|δ<sub>s</sub>|-13.42065°|
+|D-2|*R*<sub>M</sub>|1.47767 AU|
+|D-3|*l*<sub>M</sub>|52.37564°|
+|D-4|*b*<sub>M</sub>|0.08965°|
+|D-5|*Z*|151.93895°|
+|D-6|*A*|179.99383°|
+
+## 参考文献
+有关 Mars24 使用的数据和公式的讨论可以在以下内容中找到：
+- Allison, M. 1997. [Accurate analytic representations of solar time and seasons on Mars with applications to the Pathfinder/Surveyor missions.][ref-1] Geophys. Res. Lett., 24, 1967-1970.
+- Allison, M., and M. McEwen 2000. [A post-Pathfinder evaluation of aerocentric solar coordinates with improved timing recipes for Mars seasonal/diurnal climate studies.][ref-2] Planet. Space Sci., 48, 215-235.
+
+[origin-link]: https://www.giss.nasa.gov/tools/mars24/help/algorithm.html|
 [leep-seconds]: https://www.timeanddate.com/time/leapseconds.html
 [UT]: https://zh.wikipedia.org/wiki/%E4%B8%96%E7%95%8C%E6%97%B6
 [UTC]: https://zh.wikipedia.org/wiki/%E5%8D%8F%E8%B0%83%E4%B8%96%E7%95%8C%E6%97%B6
 [Julian]: https://scienceworld.wolfram.com/astronomy/JulianDate.html
+[ref-1]: https://pubs.giss.nasa.gov/abs/al04000r.html
+[ref-2]: https://pubs.giss.nasa.gov/abs/al05000n.html
