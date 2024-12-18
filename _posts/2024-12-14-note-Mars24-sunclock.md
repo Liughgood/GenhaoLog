@@ -4,12 +4,6 @@ title:  "Mars24 太阳钟采用的火星太阳时技术说明"
 date:   2024-12-14 22:27:00 +0800
 categories: NASA Mars Time
 ---
-<!-- for latex -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>
-<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
 
 **本篇文章翻译自NASA的 [Technical Notes on Mars Solar Time as Adopted by the Mars24 Sunclock][origin-link]  
 作者：Michael Allison and Robert Schmunk  
