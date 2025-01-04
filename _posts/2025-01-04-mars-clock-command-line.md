@@ -19,7 +19,7 @@ categories: NASA Mars Time
 
 1. 克隆项目仓库：
     ```bash
-    git clone https://github.com/yourusername/mars-clock.git
+    git clone https://github.com/liughgood/mars-clock.git
     ```
 
 2. 进入项目目录：
